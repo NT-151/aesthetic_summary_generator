@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Fiori Clinical Notes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Fiori</h1>
+    <nav class="tab-nav">
+      <a href="/" class="tab active">Notes</a>
+      <a href="/scanner.html" class="tab">Lot Scanner</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Input Section -->
+    <section id="input-section" class="card">
+      <label for="transcript">Paste consultation transcript</label>
+      <textarea
+        id="transcript"
+        placeholder="Paste your audio transcript here..."
+        rows="10"
+      ></textarea>
+      <div class="actions">
+        <button id="clear-btn" class="btn-secondary" disabled>Clear</button>
+        <button id="extract-btn" class="btn-primary" disabled>Extract Notes</button>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <section id="loading" class="card hidden">
+      <div class="loader"></div>
+      <p>Extracting clinical notes...</p>
+    </section>
+
+    <!-- Output Section -->
+    <section id="output-section" class="card hidden">
+      <div class="output-header">
+        <h2>Extracted Notes</h2>
+        <div class="output-actions">
+          <button id="copy-btn" class="btn-icon" title="Copy to clipboard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <button id="new-btn" class="btn-secondary">New Transcript</button>
+        </div>
+      </div>
+      <div id="notes-output" class="notes-content"></div>
+    </section>
+
+    <!-- Error -->
+    <section id="error-section" class="card hidden">
+      <p class="error-text" id="error-msg"></p>
+      <button id="retry-btn" class="btn-primary">Try Again</button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
