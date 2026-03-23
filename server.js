@@ -95,12 +95,14 @@ app.post("/api/extract", async (req, res) => {
   }
 });
 
-const LOT_SCAN_PROMPT = `You are a product identification AI for an aesthetic medicine clinic. You will be shown a photo of one or more product boxes (e.g. Botox, Azzalure, Bocouture, Restylane, Juvederm, etc.).
+const LOT_SCAN_PROMPT = `You are a product identification AI for an aesthetic medicine clinic. You will be shown one or more photos of product boxes (e.g. Botox, Azzalure, Bocouture, Restylane, Juvederm, etc.).
 
-Extract the following from each product visible in the image:
+Extract the following for each DISTINCT product:
 - Product name
 - Lot number (also called batch number)
 - Expiry date
+
+IMPORTANT: When multiple images are provided, they may show DIFFERENT SIDES of the SAME product box (e.g. one image shows the product name/branding, another shows the lot number and expiry date). In this case, MERGE the information into a SINGLE entry rather than returning separate entries. Use clues like matching lot numbers, matching expiry dates, similar packaging, or the fact that partial information from one image complements missing information from another to determine they are the same product.
 
 Return your response as a JSON array ONLY, with no other text. Each element should have these fields:
 - "product": the product name

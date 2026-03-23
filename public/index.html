@@ -258,6 +258,22 @@
           <div class="card">
             <div class="output-header">
               <h2>Notes</h2>
+              <div class="dropdown-wrapper">
+                <button id="link-note-btn" class="btn-secondary btn-small">+ Link Note</button>
+                <div id="note-dropdown" class="dropdown hidden">
+                  <div class="dropdown-header">
+                    <span class="dropdown-title">Select notes to link</span>
+                    <button id="close-note-dropdown" class="btn-delete" title="Close">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div id="note-picker-list" class="dropdown-list"></div>
+                  <p id="no-available-notes" class="dropdown-empty hidden">No notes in history. Extract notes first.</p>
+                  <button id="confirm-note-link-btn" class="btn-primary btn-small dropdown-confirm hidden" disabled>Link Selected</button>
+                </div>
+              </div>
             </div>
             <div id="patient-notes" class="results-grid"></div>
             <p id="no-notes" class="no-results">No notes linked yet. Extract notes and save to this patient.</p>

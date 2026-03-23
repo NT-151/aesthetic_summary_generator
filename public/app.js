@@ -206,8 +206,8 @@ function renderNotesHistory() {
   notesHistorySection.classList.remove("hidden");
   notesHistoryOutput.innerHTML = history.map((item, i) => `
     <div class="result-card note-history-card" data-index="${i}">
-      <div class="history-card-header">
-        <div class="result-product">${escapeHtml(item.title)}</div>
+      <div class="note-card-header">
+        <input class="note-name-input" type="text" value="${escapeHtml(item.title).replace(/"/g, '&quot;')}" data-index="${i}">
         <button class="btn-delete" data-index="${i}" title="Remove">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -218,6 +218,24 @@ function renderNotesHistory() {
       <div class="history-timestamp">${item.createdAt}</div>
     </div>
   `).join("");
+
+  // Rename on blur or enter
+  notesHistoryOutput.querySelectorAll(".note-name-input").forEach(input => {
+    function saveTitle() {
+      const newTitle = input.value.trim();
+      if (!newTitle) return;
+      const index = parseInt(input.dataset.index);
+      const history = getNotesHistory();
+      if (history[index] && history[index].title !== newTitle) {
+        history[index].title = newTitle;
+        saveNotesHistory(history);
+      }
+    }
+    input.addEventListener("blur", saveTitle);
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+    });
+  });
 
   // Delete individual items
   notesHistoryOutput.querySelectorAll(".btn-delete").forEach(btn => {
@@ -234,7 +252,7 @@ function renderNotesHistory() {
   // Click to expand/view
   notesHistoryOutput.querySelectorAll(".note-history-card").forEach(card => {
     card.addEventListener("click", (e) => {
-      if (e.target.closest(".btn-delete")) return;
+      if (e.target.closest(".btn-delete") || e.target.closest(".note-name-input")) return;
       const index = parseInt(card.dataset.index);
       const history = getNotesHistory();
       lastExtractedNotes = history[index].content;

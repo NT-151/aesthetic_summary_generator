@@ -32,14 +32,23 @@ const lotPickerList = document.getElementById("lot-picker-list");
 const noAvailableLots = document.getElementById("no-available-lots");
 const confirmLotLinkBtn = document.getElementById("confirm-lot-link-btn");
 
+const linkNoteBtn = document.getElementById("link-note-btn");
+const noteDropdown = document.getElementById("note-dropdown");
+const closeNoteDropdown = document.getElementById("close-note-dropdown");
+const notePickerList = document.getElementById("note-picker-list");
+const noAvailableNotes = document.getElementById("no-available-notes");
+const confirmNoteLinkBtn = document.getElementById("confirm-note-link-btn");
+
 let currentPatientId = null;
 let selectedLotIds = new Set();
+let selectedNoteHistoryIds = new Set();
 
 // --- Sections ---
 function showPatientSection(section) {
   [patientsListSection, createSection, detailSection].forEach(s => s.classList.add("hidden"));
   section.classList.remove("hidden");
   lotDropdown.classList.add("hidden");
+  noteDropdown.classList.add("hidden");
 }
 
 // --- Patient List ---
@@ -344,6 +353,92 @@ confirmLotLinkBtn.addEventListener("click", () => {
   saveLotLinks(links);
   lotDropdown.classList.add("hidden");
   renderPatientLots(currentPatientId);
+});
+
+// --- Link Note Dropdown ---
+linkNoteBtn.addEventListener("click", () => {
+  const isOpen = !noteDropdown.classList.contains("hidden");
+  if (isOpen) {
+    noteDropdown.classList.add("hidden");
+    return;
+  }
+
+  const history = getNotesHistory();
+  // Filter out notes already linked to this patient
+  const existingNotes = getPatientNotes().filter(n => n.patientId === currentPatientId);
+  const linkedContentSet = new Set(existingNotes.map(n => n.content));
+  const available = history.filter(h => !linkedContentSet.has(h.content));
+
+  selectedNoteHistoryIds.clear();
+  confirmNoteLinkBtn.disabled = true;
+
+  if (available.length === 0) {
+    notePickerList.innerHTML = "";
+    noAvailableNotes.classList.remove("hidden");
+    confirmNoteLinkBtn.classList.add("hidden");
+  } else {
+    noAvailableNotes.classList.add("hidden");
+    confirmNoteLinkBtn.classList.remove("hidden");
+    notePickerList.innerHTML = available.map(item => `
+      <div class="dropdown-item note-picker-item" data-note-id="${item.id}">
+        <div class="dropdown-item-main">
+          <span class="dropdown-item-name">${escapeHtml(item.title)}</span>
+          <span class="dropdown-item-detail">${item.createdAt}</span>
+        </div>
+        <div class="dropdown-check hidden">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+      </div>
+    `).join("");
+
+    notePickerList.querySelectorAll(".note-picker-item").forEach(el => {
+      el.addEventListener("click", () => {
+        const noteId = el.dataset.noteId;
+        const check = el.querySelector(".dropdown-check");
+        if (selectedNoteHistoryIds.has(noteId)) {
+          selectedNoteHistoryIds.delete(noteId);
+          el.classList.remove("selected");
+          check.classList.add("hidden");
+        } else {
+          selectedNoteHistoryIds.add(noteId);
+          el.classList.add("selected");
+          check.classList.remove("hidden");
+        }
+        confirmNoteLinkBtn.disabled = selectedNoteHistoryIds.size === 0;
+        confirmNoteLinkBtn.textContent = selectedNoteHistoryIds.size > 0
+          ? `Link ${selectedNoteHistoryIds.size} Note${selectedNoteHistoryIds.size > 1 ? "s" : ""}`
+          : "Link Selected";
+      });
+    });
+  }
+
+  noteDropdown.classList.remove("hidden");
+});
+
+closeNoteDropdown.addEventListener("click", () => {
+  noteDropdown.classList.add("hidden");
+});
+
+confirmNoteLinkBtn.addEventListener("click", () => {
+  const history = getNotesHistory();
+  const notes = getPatientNotes();
+  selectedNoteHistoryIds.forEach(historyId => {
+    const historyItem = history.find(h => h.id === historyId);
+    if (historyItem) {
+      notes.unshift({
+        id: generateId(),
+        patientId: currentPatientId,
+        name: historyItem.title,
+        content: historyItem.content,
+        createdAt: historyItem.createdAt,
+      });
+    }
+  });
+  savePatientNotes(notes);
+  noteDropdown.classList.add("hidden");
+  renderPatientNotes(currentPatientId);
 });
 
 // --- Edit / Delete ---
