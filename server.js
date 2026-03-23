@@ -3,7 +3,7 @@ const Anthropic = require("@anthropic-ai/sdk");
 const path = require("path");
 
 const app = express();
-app.use(express.json({ limit: "20mb" }));
+app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const anthropic = new Anthropic();
@@ -116,21 +116,34 @@ Example response:
 Return ONLY the JSON array, no markdown, no explanation.`;
 
 app.post("/api/scan-lot", async (req, res) => {
-  const { image } = req.body;
+  const { image, images } = req.body;
 
-  if (!image) {
+  // Support single image (legacy) or multiple images
+  const imageList = images || (image ? [image] : []);
+  if (imageList.length === 0) {
     return res.status(400).json({ error: "No image provided" });
   }
 
   try {
-    // Extract base64 data and media type from data URL
-    const match = image.match(/^data:(image\/\w+);base64,(.+)$/);
-    if (!match) {
-      return res.status(400).json({ error: "Invalid image format" });
+    const contentParts = [];
+    for (const img of imageList) {
+      const match = img.match(/^data:(image\/[\w+.-]+);base64,(.+)/s);
+      if (!match) {
+        return res.status(400).json({ error: "Invalid image format" });
+      }
+      contentParts.push({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: match[1],
+          data: match[2],
+        },
+      });
     }
-
-    const mediaType = match[1];
-    const base64Data = match[2];
+    contentParts.push({
+      type: "text",
+      text: `Extract all lot numbers and expiry dates from the product boxes in ${imageList.length === 1 ? "this image" : "these " + imageList.length + " images"}.`,
+    });
 
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
@@ -138,20 +151,7 @@ app.post("/api/scan-lot", async (req, res) => {
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: mediaType,
-                data: base64Data,
-              },
-            },
-            {
-              type: "text",
-              text: "Extract all lot numbers and expiry dates from the product boxes in this image.",
-            },
-          ],
+          content: contentParts,
         },
       ],
       system: LOT_SCAN_PROMPT,
@@ -174,6 +174,11 @@ app.post("/api/scan-lot", async (req, res) => {
       error: "Failed to scan image. Please check your API key and try again.",
     });
   }
+});
+
+// SPA catch-all: serve index.html for client-side routes
+app.get(/^\/(lots|patients)$/, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;

@@ -5,63 +5,296 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Fiori Clinical Notes</title>
+  <title>Fiori</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>Fiori</h1>
-    <nav class="tab-nav">
-      <a href="/" class="tab active">Notes</a>
-      <a href="/scanner.html" class="tab">Lot Scanner</a>
-    </nav>
-  </header>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">Fiori</div>
+      <nav class="sidebar-nav">
+        <a data-section="notes" class="sidebar-link active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Notes
+        </a>
+        <a data-section="lots" class="sidebar-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+          </svg>
+          Lot Scanner
+        </a>
+        <a data-section="patients" class="sidebar-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Patients
+        </a>
+      </nav>
+    </aside>
 
-  <main>
-    <!-- Input Section -->
-    <section id="input-section" class="card">
-      <label for="transcript">Paste consultation transcript</label>
-      <textarea
-        id="transcript"
-        placeholder="Paste your audio transcript here..."
-        rows="10"
-      ></textarea>
-      <div class="actions">
-        <button id="clear-btn" class="btn-secondary" disabled>Clear</button>
-        <button id="extract-btn" class="btn-primary" disabled>Extract Notes</button>
-      </div>
-    </section>
+    <!-- Content -->
+    <div class="content-area">
 
-    <!-- Loading -->
-    <section id="loading" class="card hidden">
-      <div class="loader"></div>
-      <p>Extracting clinical notes...</p>
-    </section>
-
-    <!-- Output Section -->
-    <section id="output-section" class="card hidden">
-      <div class="output-header">
-        <h2>Extracted Notes</h2>
-        <div class="output-actions">
-          <button id="copy-btn" class="btn-icon" title="Copy to clipboard">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-            </svg>
-          </button>
-          <button id="new-btn" class="btn-secondary">New Transcript</button>
+      <!-- ==================== NOTES ==================== -->
+      <section id="section-notes" class="content-section">
+        <div class="content-header">
+          <h2>Clinical Notes</h2>
+          <p class="content-subtitle">Extract structured notes from consultation transcripts</p>
         </div>
-      </div>
-      <div id="notes-output" class="notes-content"></div>
-    </section>
 
-    <!-- Error -->
-    <section id="error-section" class="card hidden">
-      <p class="error-text" id="error-msg"></p>
-      <button id="retry-btn" class="btn-primary">Try Again</button>
-    </section>
-  </main>
+        <div id="notes-input-section" class="card">
+          <label for="transcript">Paste consultation transcript</label>
+          <textarea id="transcript" placeholder="Paste your audio transcript here..." rows="10"></textarea>
+          <div class="actions">
+            <button id="clear-btn" class="btn-secondary" disabled>Clear</button>
+            <button id="extract-btn" class="btn-primary" disabled>Extract Notes</button>
+          </div>
+        </div>
 
+        <div id="notes-loading" class="card hidden">
+          <div class="loader"></div>
+          <p>Extracting clinical notes...</p>
+        </div>
+
+        <div id="notes-output-section" class="card hidden">
+          <div class="output-header">
+            <h2>Extracted Notes</h2>
+            <div class="output-actions">
+              <button id="notes-copy-btn" class="btn-icon" title="Copy to clipboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+              <button id="new-btn" class="btn-secondary">New Transcript</button>
+            </div>
+          </div>
+          <div id="notes-output" class="notes-content"></div>
+          <button id="save-to-patient-btn" class="btn-primary" style="margin-top: 16px;">Save to Patient</button>
+        </div>
+
+        <div id="notes-patient-picker" class="card hidden">
+          <h2>Save Note to Patient</h2>
+          <p class="picker-hint">Select a patient to save these notes to.</p>
+          <div id="picker-patient-list" class="patient-list"></div>
+          <p id="picker-no-patients" class="no-results hidden">No patients yet. Create one on the Patients page first.</p>
+          <div class="actions">
+            <button id="cancel-picker-btn" class="btn-secondary">Cancel</button>
+          </div>
+        </div>
+
+        <div id="notes-error-section" class="card hidden">
+          <p class="error-text" id="notes-error-msg"></p>
+          <button id="notes-retry-btn" class="btn-primary">Try Again</button>
+        </div>
+
+        <div id="notes-history-section" class="card hidden">
+          <div class="output-header">
+            <h2>Notes History</h2>
+            <div class="output-actions">
+              <button id="copy-notes-history-btn" class="btn-icon" title="Copy all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+              <button id="clear-notes-history-btn" class="btn-secondary btn-small">Clear All</button>
+            </div>
+          </div>
+          <div id="notes-history-output" class="results-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== LOTS ==================== -->
+      <section id="section-lots" class="content-section hidden">
+        <div class="content-header">
+          <h2>Lot Scanner</h2>
+          <p class="content-subtitle">Scan product boxes to extract lot numbers and expiry dates</p>
+        </div>
+
+        <div id="upload-section" class="card">
+          <label>Upload photos of product boxes</label>
+          <div id="drop-zone" class="drop-zone">
+            <input type="file" id="file-input" accept="image/*" multiple hidden>
+            <div id="drop-placeholder" class="drop-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+              </svg>
+              <p>Tap to upload photos</p>
+              <p class="hint">Supports JPG, PNG, HEIC · Multiple images</p>
+            </div>
+          </div>
+          <div id="preview-grid" class="preview-grid hidden"></div>
+          <div class="actions">
+            <button id="add-more-btn" class="btn-secondary hidden">+ Add More</button>
+            <button id="clear-all-btn" class="btn-secondary hidden">Clear All</button>
+            <button id="scan-btn" class="btn-primary" disabled>Scan Products</button>
+          </div>
+        </div>
+
+        <div id="lots-loading" class="card hidden">
+          <div class="loader"></div>
+          <p>Scanning for lot numbers and expiry dates...</p>
+        </div>
+
+        <div id="results-section" class="card hidden">
+          <div class="output-header">
+            <h2>Scan Results</h2>
+            <div class="output-actions">
+              <button id="lots-copy-btn" class="btn-icon" title="Copy to clipboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+              <button id="new-scan-btn" class="btn-secondary">New Scan</button>
+            </div>
+          </div>
+          <div id="results-output" class="results-grid"></div>
+          <button id="link-to-patient-btn" class="btn-primary" style="margin-top: 16px;">Link to Patient</button>
+        </div>
+
+        <div id="lot-patient-picker" class="card hidden">
+          <h2>Link Lots to Patient</h2>
+          <p class="picker-hint">Select a patient. A scanned lot can be linked to multiple patients.</p>
+          <div id="lot-picker-patients" class="patient-list"></div>
+          <p id="lot-picker-no-patients" class="no-results hidden">No patients yet. Create one on the Patients page first.</p>
+          <div class="actions">
+            <button id="cancel-lot-patient-btn" class="btn-secondary">Cancel</button>
+          </div>
+        </div>
+
+        <div id="lots-error-section" class="card hidden">
+          <p class="error-text" id="lots-error-msg"></p>
+          <button id="lots-retry-btn" class="btn-primary">Try Again</button>
+        </div>
+
+        <div id="history-section" class="card hidden">
+          <div class="output-header">
+            <h2>Scan History</h2>
+            <div class="output-actions">
+              <button id="copy-history-btn" class="btn-icon" title="Copy all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+              <button id="clear-history-btn" class="btn-secondary btn-small">Clear All</button>
+            </div>
+          </div>
+          <div id="history-output" class="results-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PATIENTS ==================== -->
+      <section id="section-patients" class="content-section hidden">
+        <div class="content-header">
+          <h2>Patients</h2>
+          <p class="content-subtitle">Manage patients and their linked notes and lots</p>
+        </div>
+
+        <!-- Patient List -->
+        <div id="patients-list-section">
+          <div class="card">
+            <div class="output-header">
+              <h2>All Patients</h2>
+              <button id="add-patient-btn" class="btn-secondary btn-small">+ New</button>
+            </div>
+            <div id="search-wrapper">
+              <input type="text" id="patient-search" class="search-input" placeholder="Search patients...">
+            </div>
+            <div id="patient-list" class="patient-list"></div>
+            <p id="no-patients" class="no-results hidden">No patients yet. Tap + New to add one.</p>
+          </div>
+        </div>
+
+        <!-- Create/Edit Patient -->
+        <div id="create-section" class="card hidden">
+          <h2 id="form-title">New Patient</h2>
+          <input type="hidden" id="edit-patient-id">
+          <div class="form-group">
+            <label for="patient-name">Name</label>
+            <input type="text" id="patient-name" class="text-input" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label for="patient-dob">Date of Birth</label>
+            <input type="date" id="patient-dob" class="text-input">
+          </div>
+          <div class="form-group">
+            <label for="patient-phone">Phone</label>
+            <input type="tel" id="patient-phone" class="text-input" placeholder="Phone number">
+          </div>
+          <div class="actions">
+            <button id="cancel-create-btn" class="btn-secondary">Cancel</button>
+            <button id="save-patient-btn" class="btn-primary" disabled>Save</button>
+          </div>
+        </div>
+
+        <!-- Patient Detail -->
+        <div id="detail-section" class="hidden">
+          <div class="card">
+            <div class="output-header">
+              <button id="back-btn" class="btn-icon" title="Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+                </svg>
+              </button>
+              <div class="detail-header-right">
+                <button id="edit-patient-btn" class="btn-icon" title="Edit">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button id="delete-patient-btn" class="btn-icon btn-icon-danger" title="Delete patient">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div id="patient-info" class="patient-info"></div>
+          </div>
+
+          <div class="card">
+            <div class="output-header">
+              <h2>Notes</h2>
+            </div>
+            <div id="patient-notes" class="results-grid"></div>
+            <p id="no-notes" class="no-results">No notes linked yet. Extract notes and save to this patient.</p>
+          </div>
+
+          <div class="card">
+            <div class="output-header">
+              <h2>Linked Lots</h2>
+              <div class="dropdown-wrapper">
+                <button id="link-lot-btn" class="btn-secondary btn-small">+ Link Lot</button>
+                <div id="lot-dropdown" class="dropdown hidden">
+                  <div class="dropdown-header">
+                    <span class="dropdown-title">Select lots to link</span>
+                    <button id="close-lot-dropdown" class="btn-delete" title="Close">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div id="lot-picker-list" class="dropdown-list"></div>
+                  <p id="no-available-lots" class="dropdown-empty hidden">No scanned lots available.</p>
+                  <button id="confirm-lot-link-btn" class="btn-primary btn-small dropdown-confirm hidden" disabled>Link Selected</button>
+                </div>
+              </div>
+            </div>
+            <div id="patient-lots" class="results-grid"></div>
+            <p id="no-lots" class="no-results">No lots linked yet.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
   <script src="app.js"></script>
+  <script src="scanner.js"></script>
+  <script src="patients.js"></script>
 </body>
 </html>
