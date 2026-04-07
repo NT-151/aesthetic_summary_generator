@@ -1,6 +1,7 @@
 const express = require("express");
 const Anthropic = require("@anthropic-ai/sdk");
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
 app.use(express.json({ limit: "100mb" }));
@@ -90,7 +91,8 @@ app.post("/api/extract", async (req, res) => {
   } catch (error) {
     console.error("Extraction error:", error);
     res.status(500).json({
-      error: "Failed to extract notes. Please check your API key and try again.",
+      error:
+        "Failed to extract notes. Please check your API key and try again.",
     });
   }
 });

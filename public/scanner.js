@@ -221,11 +221,18 @@ function renderHistory() {
     <div class="result-card history-card">
       <div class="history-card-header">
         <div class="result-product">${escapeHtml(item.product || "Unknown Product")}</div>
-        <button class="btn-delete" data-index="${i}" title="Remove">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+        <div class="history-card-actions">
+          <button class="btn-copy-note" data-index="${i}" title="Copy lot">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <button class="btn-delete" data-index="${i}" title="Remove">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="result-fields">
         <div class="result-field">
@@ -242,6 +249,27 @@ function renderHistory() {
   `
     )
     .join("");
+
+  historyOutput.querySelectorAll(".btn-copy-note").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const index = parseInt(btn.dataset.index);
+      const item = history[index];
+      const text = `Product: ${item.product || "Unknown"}\nLot Number: ${item.lot || "Not found"}\nExpiry Date: ${item.expiry || "Not found"}`;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      btn.classList.add("copy-success");
+      setTimeout(() => btn.classList.remove("copy-success"), 1500);
+    });
+  });
 
   historyOutput.querySelectorAll(".btn-delete").forEach((btn) => {
     btn.addEventListener("click", (e) => {

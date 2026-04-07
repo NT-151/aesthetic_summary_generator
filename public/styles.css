@@ -429,6 +429,12 @@ textarea::placeholder {
   align-items: center;
 }
 
+.history-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .history-timestamp {
   font-size: 12px;
   color: var(--text-secondary);
@@ -574,6 +580,27 @@ textarea::placeholder {
   margin-bottom: 4px;
 }
 
+.btn-copy-note {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.btn-copy-note:hover {
+  color: var(--primary);
+  background: var(--bg-secondary);
+}
+
+.btn-copy-note.copy-success {
+  color: var(--success, #10b981);
+}
+
 .note-name-input {
   flex: 1;
   font-size: 15px;
@@ -589,6 +616,10 @@ textarea::placeholder {
 .note-name-input:focus {
   outline: none;
   border-bottom: 1.5px solid var(--primary);
+}
+
+.note-history-card {
+  cursor: pointer;
 }
 
 .note-preview {
